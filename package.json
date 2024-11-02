@@ -1,0 +1,58 @@
+{
+	"name": "letterpress-customer",
+	"displayName": "Letterpress Customer",
+	"description": "Customize letterpress of Your editor!",
+	"publisher": "maxzhirniy",
+	"icon": "media/logo.png",
+	"version": "1.0.0",
+	"engines": {
+		"vscode": "^1.56.0"
+	},
+	"categories": [
+		"Other",
+		"Themes"
+	],
+	"activationEvents": ["onCommand:changeletterpress", "onCommand:addletterpress", "onStartupFinished"],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "letterpress-customer.changeletterpress",
+				"title": "Change letterpress"
+			},
+			{
+				"command": "letterpress-customer.addletterpress",
+				"title": "Add new letterpress"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Letterpress customer configuration",
+			"properties": {
+				"letterpress-customer.reopenNow":{
+					"type":"boolean",
+					"default": false,
+					"description": "Reopen window right now for reload letterpress. EXPERIMENTAL!",
+					"scope": "resource"
+				}
+			}
+		}
+	},
+	"bugs": {
+		"url": "https://github.com/maxzhirny/vscode-letterpress-customer/issues"
+	},
+	"homepage": "https://github.com/maxzhirny/vscode-letterpress-customer/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/maxzhirny/vscode-letterpress-customer.git"
+	},
+	"devDependencies": {
+		"svgo": "^3.3.2"
+	},
+	"__metadata": {
+		"isApplicationScoped": false,
+		"installedTimestamp": 1730461090053,
+		"pinned": true,
+		"source": "vsix"
+	}
+}
