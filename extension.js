@@ -3,7 +3,6 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const { optimize } = require('svgo');
-const { promises } = require('dns');
 
 function activate(context) {
 	const appDir = path.join((require.main ? path.dirname(require.main.filename) : globalThis._VSCODE_FILE_ROOT), "media");
