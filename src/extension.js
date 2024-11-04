@@ -13,102 +13,91 @@ function activate(context) {
 		return;
 	}
 	const mediaDir = path.join(appDir, "media");
-	if (!safelyMode){
-		const tar = path.join(extDir, "default");
-		fs.access(tar, fs.constants.F_OK, (err)=>{
-			if (err){
-				fs.mkdir(tar, {recursive:true}, (mkdirErr) => {
-					if (mkdirErr){
-						vscode.window.showWarningMessage("Error in create backup directory: " + mkdirErr);
+	const tar = path.join(extDir, "default");
+	fs.access(tar, fs.constants.F_OK, (err)=>{
+		if (err){
+			fs.mkdir(tar, {recursive:true}, (mkdirErr) => {
+				if (mkdirErr){
+					vscode.window.showWarningMessage("Error in create backup directory: " + mkdirErr);
+					return;
+				}
+				fs.readdir(mediaDir, "utf8", (err, files) =>{
+					if (err){
+						vscode.window.showErrorMessage("Backup error: " + err);
 						return;
 					}
-					fs.readdir(mediaDir, "utf8", (err, files) =>{
-						if (err){
-							vscode.window.showErrorMessage("Backup error: " + err);
-							return;
+					files.forEach(file => {
+						if (file.includes("letterpress")){
+							let sourceFile = path.join(mediaDir, file);
+							let targetFile = path.join(tar, file);
+							fs.copyFile(sourceFile, targetFile,fs.constants.COPYFILE_EXCL, (err) =>{
+								if (err){
+									vscode.window.showWarningMessage("Error in backup files: " + err);
+									return;
+								}
+							});
 						}
-						files.forEach(file => {
-							if (file.includes("letterpress")){
-								let sourceFile = path.join(mediaDir, file);
-								let targetFile = path.join(tar, file);
-								fs.copyFile(sourceFile, targetFile,fs.constants.COPYFILE_EXCL, (err) =>{
-									if (err){
-										vscode.window.showWarningMessage("Error in backup files: " + err);
-										return;
-									}
-								});
-							}
-						});
 					});
 				});
-			}
-		});
-	}
+			});
+		}
+	});
+
 	
 	function changeLetterpress(type, name = "") {
 		const source = path.join(extDir, type, name);
 		let inj = {};
 		let multi = true;
-		if (name){
-			fs.readdir(source, "utf8", (readErr, files) => {
-				if (!safelyMode) {
-					if (readErr){
-						vscode.window.showWarningMessage("Error: " + readErr);
-						return;
-					}
-					if (files.length === 1){multi=false}
-						const oldFiles = fs.readdirSync(mediaDir);
-						oldFiles.forEach((oldFile) => {
-							try {
-								if (oldFile.includes("letterpress")){
-									fs.unlinkSync(path.join(mediaDir, oldFile));
-								}
-							} catch (err){
-								vscode.window.showErrorMessage("Error with deleting old watermark:" + oldFile +"\nUse safely mode or restart vscode as admin");
+		fs.readdir(source, "utf8", (readErr, files) => {
+			if (!safelyMode || !name) {
+				if (readErr){
+					vscode.window.showWarningMessage("Error: " + readErr);
+					return;
+				}
+				if (files.length === 1){multi=false}
+					const oldFiles = fs.readdirSync(mediaDir);
+					oldFiles.forEach((oldFile) => {
+						try {
+							if (oldFile.includes("letterpress")){
+								fs.unlinkSync(path.join(mediaDir, oldFile));
 							}
-						})
-					files.forEach( file => {
-						console.log(file);
-						if (multi) { 
-							inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = file;
-						} else {
-							inj["light"] = file;
-							inj["dark"] = file;
-							inj["hcdark"] = file;
-							inj["hclight"] = file;
-						}
-						const sourcepath = path.join(source, file);
-						const targetpath = path.join(mediaDir, file);
-						fs.copyFileSync(sourcepath, targetpath);
-					});
-				} else{
-					files.forEach( file => {
-						console.log(file);
-						if (multi) { 
-							inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = path.join(source, file);
-						} else {
-							inj["light"] = path.join(source, file);
-							inj["dark"] = path.join(source, file);
-							inj["hcdark"] = path.join(source, file);
-							inj["hclight"] = path.join(source, file);
+						} catch (err){
+							vscode.window.showErrorMessage("Error with deleting old watermark:" + oldFile +"\nUse safely mode or restart vscode as admin");
 						}
 					});
-				}
-				injectToWorkbenchHtml(inj, name);
-				if (vscode.workspace.getConfiguration("editor-watermark-customizer").get("reopenNow")){
-					vscode.commands.executeCommand("workbench.action.reloadWindow");
-				} else {
-					vscode.window.showInformationMessage("Reopen window for changes", {title: "Reopen"}).then(reloadWindow);
-				}
-			});
-		} else {
+				files.forEach( file => {
+					if (multi) { 
+						inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = file;
+					} else {
+						inj["light"] = file;
+						inj["dark"] = file;
+						inj["hcdark"] = file;
+						inj["hclight"] = file;
+					}
+					const sourcepath = path.join(source, file);
+					const targetpath = path.join(mediaDir, file);
+					fs.copyFileSync(sourcepath, targetpath);
+				});
+			} else{
+				if (files.length === 1){multi=false}
+				files.forEach( file => {
+					if (multi) { 
+						inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = path.join(source, file);
+					} else {
+						inj["light"] = path.join(source, file);
+						inj["dark"] = path.join(source, file);
+						inj["hcdark"] = path.join(source, file);
+						inj["hclight"] = path.join(source, file);
+					}
+				});
+			}
 			injectToWorkbenchHtml(inj, name);
 			if (vscode.workspace.getConfiguration("editor-watermark-customizer").get("reopenNow")){
 				vscode.commands.executeCommand("workbench.action.reloadWindow");
 			} else {
 				vscode.window.showInformationMessage("Reopen window for changes", {title: "Reopen"}).then(reloadWindow);
 			}
-		}
+		});
 	}
 
 	function getInjection(watermarks){
@@ -166,6 +155,7 @@ function activate(context) {
 
 	function injectToWorkbenchHtml(injOpts, mode=""){
 		let htmlFile = path.join(appDir, "vs", "code", "electron-sandbox", "workbench", "workbench.html");
+		let injection ="";
 		if (!fs.existsSync(htmlFile)) {
 			htmlFile = path.join(appDir, "vs", "code", "electron-sandbox", "workbench", "workbench.esm.html");
 			if (!fs.existsSync(htmlFile)) {htmlFile = path.join(appDir, "vs", "code", "electron-sandbox", "workbench", "electron-sandbox", "workbench", "workbench.esm.html");}
@@ -186,8 +176,8 @@ function activate(context) {
 				let newPath = relativePath(htmlFile, injOpts[Type]);
 				injOpts[Type] = newPath;
 			}
+			injection = getInjection(injOpts);
 		}
-		const injection = Boolean(mode) ? getInjection(injOpts) : "";
 		fs.readFile(htmlFile, "utf8", (err, data)=>{
 			if (err){
 				vscode.window.showErrorMessage("Error in patching. Please, use only svg images for watermark and turn off safelyMode.\n" + err)
@@ -200,9 +190,9 @@ function activate(context) {
 
 	function relativePath(dist, src){
 		dist = dist.replace(/\\/g, "/"); src = src.replace(/\\/g, "/");
-		const onDrive = (dist[0].toLowerCase()!==src[0].toLowerCase());
+		const onDrive = (dist[0].toLowerCase()===src[0].toLowerCase());
 		let res = "";
-		if (!onDrive){
+		if (onDrive){
 			return (path.relative(path.dirname(dist), src).replace(":", "%3A")).replace(/\\/g, "/");
 		}
 		for (let d of dist.split('/')){
@@ -245,6 +235,9 @@ function activate(context) {
 		const vals = Object.values(paths); 
 		const dist = path.join(extDir, Type, name);
 		if (!fs.existsSync(dist)){
+			fs.mkdirSync(dist, {recursive:true}); 
+		} else {
+			fs.rmSync(dist, {recursive: true, force: true});
 			fs.mkdirSync(dist, {recursive:true}); 
 		}
 		Object.entries(paths).forEach(([theme, file]) => {
