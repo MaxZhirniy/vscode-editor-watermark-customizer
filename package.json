@@ -1,10 +1,10 @@
 {
-	"name": "letterpress-customer",
-	"displayName": "Letterpress Customer",
-	"description": "Customize letterpress of Your editor!",
+	"name": "editor-watermark-customizer",
+	"displayName": "Watermark Customizer",
+	"description": "Customize Your editor's watermark with Ease!",
 	"publisher": "maxzhirniy",
 	"icon": "media/logo.png",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"engines": {
 		"vscode": "^1.56.0"
 	},
@@ -12,47 +12,57 @@
 		"Other",
 		"Themes"
 	],
-	"activationEvents": ["onCommand:changeletterpress", "onCommand:addletterpress", "onStartupFinished"],
-	"main": "./extension.js",
+	"activationEvents": [
+		"onCommand:changeEditorWatermark",
+		"onCommand:addwatermark",
+		"onStartupFinished"
+	],
+	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "letterpress-customer.changeletterpress",
-				"title": "Change letterpress"
+				"command": "editor-watermark-customizer.changeEditorWatermark",
+				"title": "Change editor watermark"
 			},
 			{
-				"command": "letterpress-customer.addletterpress",
-				"title": "Add new letterpress"
+				"command": "editor-watermark-customizer.addwatermark",
+				"title": "Add new editor watermark"
 			}
 		],
 		"configuration": {
 			"type": "object",
-			"title": "Letterpress customer configuration",
+			"title": "Watermark Customizer configuration",
 			"properties": {
-				"letterpress-customer.reopenNow":{
-					"type":"boolean",
+				"editor-watermark-customizer.reopenNow": {
+					"type": "boolean",
 					"default": false,
-					"description": "Reopen window right now for reload letterpress. EXPERIMENTAL!",
+					"description": "Reopen window right now for update editor-watermark. EXPERIMENTAL!",
+					"scope": "resource"
+				},
+				"editor-watermark-customizer.safelyMode": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to overwrite the original installation images. Turn off if you are using Portable version",
 					"scope": "resource"
 				}
 			}
 		}
 	},
 	"bugs": {
-		"url": "https://github.com/maxzhirny/vscode-letterpress-customer/issues"
+		"url": "https://github.com/maxzhirny/vscode-editor-watermark-customizer/issues"
 	},
-	"homepage": "https://github.com/maxzhirny/vscode-letterpress-customer/blob/master/README.md",
+	"homepage": "https://github.com/maxzhirny/vscode-editor-watermark-customizer/blob/master/README.md",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/maxzhirny/vscode-letterpress-customer.git"
-	},
-	"devDependencies": {
-		"svgo": "^3.3.2"
+		"url": "https://github.com/maxzhirny/vscode-editor-watermark-customizer.git"
 	},
 	"__metadata": {
 		"isApplicationScoped": false,
-		"installedTimestamp": 1730461090053,
+		"installedTimestamp": 1730706668951,
 		"pinned": true,
 		"source": "vsix"
+	},
+	"devDependencies": {
+		"svgo": "^3.3.2"
 	}
 }
