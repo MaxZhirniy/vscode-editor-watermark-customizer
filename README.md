@@ -1,37 +1,42 @@
-# Letterpress customer
+# watermark customer
 ### Cusomize Your IDE for more convenience, change start page lettepress!
-![Features](https://github.com/maxzhirniy/vscode-letterpress-customer/raw/HEAD/media/usage.gif)
+![Features](https://github.com/maxzhirniy/vscode-editor-watermark-customizer/raw/HEAD/media/usage.gif)
 
 ## Features
 
-* Change editor start page letterpress
-* Add new letterpresses
-* Use standart monochrome letterpresses
-* Support to use color letterpresses
+* Change editor start page watermark
+* Add new watermarkes
+* Use standart monochrome watermarkes
+* Support to use color watermarkes
 
 ## Usages
 
-* To change letterpress:    
-    * Open *Command Palette* and run `Change letterpress`
-    * Selectet type of letterpress (default you have only **Monochrome** variables, but you can add color variables)
-    * Select the variable of letterpress
+* To change watermark:    
+    * Open *Command Palette* and run `Change watermark`
+    * Selectet type of watermark (default you have only **Monochrome** variables, but you can add color variables)
+    * Select the variable of watermark
     * Reopen window for changes
     * Done!  
 
-* To add new letterpress:
-    * Open *Command Palette* and run `Add new letterpress`
-    * Selectet type for new letterpress (`Monochrome` or `Color`)
-    * Enter tne name of new letterpress. (**Warning: if you enter the name of an existing letterpress, it will be overwritten!**)
-    * Select 4 svg files: for dark, light, high-contrast light and dark themes! 
+* To add new watermark:
+    * Open *Command Palette* and run `Add new watermark`
+    * Select type for new watermark (`Monochrome` or `Color`)
+    * Enter tne name of new watermark. (**Warning: if you enter the name of an existing watermark, it will be overwritten!**)
+    * Select a style of new watermark Universal or Multiple (one file for all themes, or any files per themes: dark, light, High contrast dark and light) 
+    * Select image files! 
     * Done!
 
-`letterpress-customer.reopenNow`:Restarts the IDE right now. **Waring: Experimental feature, saves all unsaved editors!** (Default is **false**)
+## Settings
+
+`editor-watermark-customizer.reopenNow`: Restarts the IDE right now. **Waring: Experimental feature, saves all unsaved editors!** (Default is **false**)
+
+`editor-watermark-customizer.safelyMode`: Whether to overwrite the original installation images. Turn off if you are using Portable version (Default is **true**)
 
 ## Change Log
-See Change Log [here](https://github.com/maxzhirniy/vscode-letterpress-customer/blob/HEAD/CHANGELOG.md)
+See Change Log [here](https://github.com/maxzhirniy/vscode-editor-watermark-customizer/blob/HEAD/CHANGELOG.md)
 
 ## Issues
-Submit the [issues](https://github.com/maxzhirny/vscode-letterpress-customer/issues) if you find any bug or have any suggestion.
+Submit the [issues](https://github.com/maxzhirny/vscode-editor-watermark-customizer/issues) if you find any bug or have any suggestion.
 
 ## Contribution
-Fork the [repo](https://github.com/maxzhirny/vscode-letterpress-customer) and submit pull requests.
+Fork the [repo](https://github.com/maxzhirny/vscode-editor-watermark-customizer) and submit pull requests.
