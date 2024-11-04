@@ -47,62 +47,68 @@ function activate(context) {
 	
 	function changeLetterpress(type, name = "") {
 		const source = path.join(extDir, type, name);
-		fs.readdir(source, "utf8", (readErr, files) => {
-			if (readErr){
-				vscode.window.showWarningMessage("Error: " + readErr);
-				return;
-			}
-			let inj = {};
-			let multi = true;
-			if (files.length === 1){multi=false}
-			if (!safelyMode){
-				const oldFiles = fs.readdirSync(mediaDir);
-				oldFiles.forEach((oldFile) => {
-					try {
-						if (oldFile.includes("letterpress")){
-							fs.unlinkSync(path.join(mediaDir, oldFile));
+		let inj = {};
+		let multi = true;
+		if (name){
+			fs.readdir(source, "utf8", (readErr, files) => {
+				if (!safelyMode) {
+					if (readErr){
+						vscode.window.showWarningMessage("Error: " + readErr);
+						return;
+					}
+					if (files.length === 1){multi=false}
+						const oldFiles = fs.readdirSync(mediaDir);
+						oldFiles.forEach((oldFile) => {
+							try {
+								if (oldFile.includes("letterpress")){
+									fs.unlinkSync(path.join(mediaDir, oldFile));
+								}
+							} catch (err){
+								vscode.window.showErrorMessage("Error with deleting old watermark:" + oldFile +"\nUse safely mode or restart vscode as admin");
+							}
+						})
+					files.forEach( file => {
+						console.log(file);
+						if (multi) { 
+							inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = file;
+						} else {
+							inj["light"] = file;
+							inj["dark"] = file;
+							inj["hcdark"] = file;
+							inj["hclight"] = file;
 						}
-					} catch (err){
-						vscode.window.showErrorMessage("Error with deleting old watermark:" + oldFile +"\nUse safely mode or restart vscode as admin");
-					}
-				})
-			}
-			files.forEach( file => {
-				if (!safelyMode){
-					if (multi) { 
-						inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = file;
-					} else {
-						inj["light"] = file;
-						inj["dark"] = file;
-						inj["hcdark"] = file;
-						inj["hclight"] = file;
-					}
-					const sourcepath = path.join(source, file);
-					const targetpath = path.join(mediaDir, file);
-					fs.copyFileSync(sourcepath, targetpath);
+						const sourcepath = path.join(source, file);
+						const targetpath = path.join(mediaDir, file);
+						fs.copyFileSync(sourcepath, targetpath);
+					});
 				} else{
-					if (multi) { 
-						inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = path.join(source, file);
-						console.log(file.match(/^letterpress-(.*?)\./)[1].toLowerCase());
-					} else {
-						inj["light"] = path.join(source, file);
-						inj["dark"] = path.join(source, file);
-						inj["hcdark"] = path.join(source, file);
-						inj["hclight"] = path.join(source, file);
-					}
+					files.forEach( file => {
+						console.log(file);
+						if (multi) { 
+							inj[file.match(/^letterpress-(.*?)\./)[1].toLowerCase()] = path.join(source, file);
+						} else {
+							inj["light"] = path.join(source, file);
+							inj["dark"] = path.join(source, file);
+							inj["hcdark"] = path.join(source, file);
+							inj["hclight"] = path.join(source, file);
+						}
+					});
+				}
+				injectToWorkbenchHtml(inj, name);
+				if (vscode.workspace.getConfiguration("editor-watermark-customizer").get("reopenNow")){
+					vscode.commands.executeCommand("workbench.action.reloadWindow");
+				} else {
+					vscode.window.showInformationMessage("Reopen window for changes", {title: "Reopen"}).then(reloadWindow);
 				}
 			});
+		} else {
 			injectToWorkbenchHtml(inj, name);
 			if (vscode.workspace.getConfiguration("editor-watermark-customizer").get("reopenNow")){
-				vscode.commands.executeCommand("workbench.action.files.saveFiles").then( () => {
-					vscode.commands.executeCommand("workbench.action.duplicateWorkspaceInNewWindow").then( () => {
-						vscode.commands.executeCommand("workbench.action.closeWindow");
-					}); 
-				}); 
+				vscode.commands.executeCommand("workbench.action.reloadWindow");
 			} else {
-				vscode.window.showInformationMessage("Reopen window for changes");
+				vscode.window.showInformationMessage("Reopen window for changes", {title: "Reopen"}).then(reloadWindow);
 			}
-		});
+		}
 	}
 
 	function getInjection(watermarks){
@@ -174,10 +180,12 @@ function activate(context) {
 				}
 			});
 		}
-		for (let Type in injOpts){
-			if (!injOpts[Type].includes("/") && !injOpts[Type].includes("\\")){break;}
-			let newPath = relativePath(htmlFile, injOpts[Type]);
-			injOpts[Type] = newPath;
+		if (mode){
+			for (let Type in injOpts){
+				if (!injOpts[Type].includes("/") && !injOpts[Type].includes("\\")){break;}
+				let newPath = relativePath(htmlFile, injOpts[Type]);
+				injOpts[Type] = newPath;
+			}
 		}
 		const injection = Boolean(mode) ? getInjection(injOpts) : "";
 		fs.readFile(htmlFile, "utf8", (err, data)=>{
@@ -201,6 +209,10 @@ function activate(context) {
 			res += "../";
 		}
 		return res+src.replace(":", "%3A");
+	}
+	function reloadWindow() {
+		// reload vscode-window
+		vscode.commands.executeCommand("workbench.action.reloadWindow");
 	}
 
 	function resort(array){
