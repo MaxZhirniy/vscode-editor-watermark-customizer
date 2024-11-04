@@ -1,5 +1,5 @@
 # watermark customer
-### Cusomize Your IDE for more convenience, change start page lettepress!
+### Cusomize Your IDE for more convenience, change start page watermark!
 ![Features](https://github.com/maxzhirniy/vscode-editor-watermark-customizer/raw/HEAD/media/usage.gif)
 
 ## Features
