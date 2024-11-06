@@ -12,23 +12,29 @@
 ## Usages
 
 * To change watermark:    
-    * Open *Command Palette* and run `Change watermark`
+    * Open *Command Palette* and run `Change Editor Watermark`
     * Selectet type of watermark (default you have only **Monochrome** variables, but you can add color variables)
-    * Select the variable of watermark
+    * Select the name of watermark
     * Reopen window for changes
     * Done!  
 
 * To add new watermark:
-    * Open *Command Palette* and run `Add new watermark`
+    * Open *Command Palette* and run `Add New Editor Watermark`
     * Select type for new watermark (`Monochrome` or `Color`)
     * Enter tne name of new watermark. (**Warning: if you enter the name of an existing watermark, it will be overwritten!**)
     * Select a style of new watermark Universal or Multiple (one file for all themes, or any files per themes: dark, light, High contrast dark and light) 
     * Select image files! 
     * Done!
 
+* To delete watermark:
+    * Open *Command Palette* and run `Delete Editor Watermark`
+    * Select type of watermark for delete (`Monochrome` or `Color`)
+    * Select the name of watermark for delete
+    * Done!
+
 ## Settings
 
-`editor-watermark-customizer.reopenNow`: Restarts the IDE right now. **Waring: Experimental feature, saves all unsaved editors!** (Default is **false**)
+`editor-watermark-customizer.reopenNow`: Restarts the IDE right now. (Default is **false**)
 
 `editor-watermark-customizer.safelyMode`: Whether to overwrite the original installation images. Turn off if you are using Portable version (Default is **true**)
 
