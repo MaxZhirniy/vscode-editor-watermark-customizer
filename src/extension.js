@@ -44,7 +44,7 @@ function activate(context) {
 	});
 
 	
-	function changeLetterpress(type, name = "") {
+	function changeLetterpress(type, name = "", mode=true) {
 		const source = path.join(extDir, type, name);
 		let inj = {};
 		let multi = true;
@@ -92,10 +92,12 @@ function activate(context) {
 				});
 			}
 			injectToWorkbenchHtml(inj, name);
-			if (vscode.workspace.getConfiguration("editor-watermark-customizer").get("reopenNow")){
-				vscode.commands.executeCommand("workbench.action.reloadWindow");
-			} else {
-				vscode.window.showInformationMessage("Reopen window for changes", {title: "Reopen"}).then(reloadWindow);
+			if (mode){
+				if (vscode.workspace.getConfiguration("editor-watermark-customizer").get("reopenNow")){
+					vscode.commands.executeCommand("workbench.action.reloadWindow");
+				} else {
+					vscode.window.showInformationMessage("Reopen window for changes", {title: "Reopen"}).then(reloadWindow);
+				}
 			}
 		});
 	}
@@ -219,18 +221,6 @@ function activate(context) {
 		});
 	}
 	
-	function SelectFile(Type){
-		return vscode.window.showOpenDialog({
-				openLabel:Type,
-				filters: {"image files": ["svg", "png", "gif", "mp4", "jpg", "jpeg"]},
-				canSelectFiles: true, 
-				canSelectMany:false, 
-				canSelectFolders:false
-		}).then(fileUri => {
-			return (fileUri.length > 0) ? fileUri[0].fsPath : fileUri.fsPath;
-		});
-	}
-
 	function createNewWatermark(Type, name, paths){
 		const vals = Object.values(paths); 
 		const dist = path.join(extDir, Type, name);
@@ -259,14 +249,34 @@ function activate(context) {
 				if (filePath.includes("universal")){return;}
 			}
 		});
-		vscode.window.showInformationMessage(`Done! Watermark created. You can set it: "Change editor watermark" and select ${Type}, ${name}`);
+		vscode.window.showInformationMessage(`Done! Watermark created. You can set it: "Change editor watermark" and select "${Type}", "${name}"`);
+	}
+	
+	function SelectFile(Type){
+		return vscode.window.showOpenDialog({
+				openLabel:Type,
+				filters: {"image files": ["svg", "png", "gif", "mp4", "jpg", "jpeg"]},
+				canSelectFiles: true, 
+				canSelectMany:false, 
+				canSelectFolders:false
+		}).then(fileUri => {
+			return (fileUri.length > 0) ? fileUri[0].fsPath : fileUri.fsPath;
+		});
 	}
 
 	function toUpper(name){
 		return name.charAt(0).toUpperCase() + name.slice(1);
 	}
 	
-	const change = vscode.commands.registerCommand('editor-watermark-customizer.changeEditorWatermark', function () {
+	function deleteLetterpress(Type, name) {
+		const dist = path.join(extDir, Type, name);
+		if (!fs.existsSync(dist)){
+			return; 
+		}
+		fs.rmSync(dist, {recursive: true, force: true});
+	}
+
+	const change = vscode.commands.registerCommand('editor-watermark-customizer.changewatermark', function () {
 		const items = [{label:"Monochrome"}, {label:"Color"}, {kind:vscode.QuickPickItemKind.Separator},{label:"Set default"}];
 		const quickPick =vscode.window.createQuickPick();
 		quickPick.items = items;
@@ -291,10 +301,10 @@ function activate(context) {
 			const vars = variables.map(label => ({label}));
 			const quickPick1 =vscode.window.createQuickPick();
 			quickPick1.items = vars;
+			quickPick1.placeholder = "Select watermark";
 			quickPick1.show();
 			quickPick1.onDidAccept(() => {
 				const sel = quickPick1.selectedItems[0].label;
-				quickPick1.placeholder = "Select watermark";
 				quickPick1.hide();
 				if (sel){
 					changeLetterpress(selection, sel);
@@ -364,8 +374,44 @@ function activate(context) {
 			});
 		});
 	});
+
+	const del = vscode.commands.registerCommand("editor-watermark-customizer.delwatermark", function () {
+		const items = [{label:"Monochrome"}, {label:"Color"}];
+		const quickPick = vscode.window.createQuickPick();
+		quickPick.items = items;
+		quickPick.placeholder = "Select type of watermark for delete";
+		quickPick.show();
+		quickPick.onDidAccept( () => {
+			const selection = quickPick.selectedItems[0].label;
+			quickPick.hide();
+			if (!selection) {
+				vscode.window.showInformationMessage("No selection made");
+				return;
+			}
+			let variables = [];
+			if (selection === "Monochrome"){
+				variables = resort(fs.readdirSync(path.join(extDir, "monochrome"), {withFileTypes: true}).filter(dirent => dirent.isDirectory()).map(dirent => toUpper(dirent.name)));
+			} else if (selection === "Color"){
+				variables = resort(fs.readdirSync(path.join(extDir, "color"), {withFileTypes: true}).filter(dirent => dirent.isDirectory()).map(dirent => toUpper(dirent.name)));
+			}
+			const vars = variables.map(label => ({label}));
+			const quickPick1 = vscode.window.createQuickPick();
+			quickPick1.placeholder = "Select watermark for delete";
+			quickPick1.items = vars;
+			quickPick1.show();
+			quickPick1.onDidAccept(() => {
+				const sel = quickPick1.selectedItems[0].label;
+				quickPick1.hide();
+				deleteLetterpress(selection, sel);
+				vscode.window.showInformationMessage("Watermark was changed to default to avoid bugs. Re-change watermark.");
+				changeLetterpress("default", "", false);
+			});
+		});
+	});
+	
 	context.subscriptions.push(change);
 	context.subscriptions.push(add);
+	context.subscriptions.push(del);
 }
 
 function deactivate() {}
