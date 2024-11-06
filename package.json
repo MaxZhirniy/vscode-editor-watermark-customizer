@@ -13,20 +13,25 @@
 		"Themes"
 	],
 	"activationEvents": [
-		"onCommand:changeEditorWatermark",
+		"onCommand:changewatermark",
 		"onCommand:addwatermark",
+		"onCommand:delwatermark",
 		"onStartupFinished"
 	],
 	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "editor-watermark-customizer.changeEditorWatermark",
-				"title": "Change editor watermark"
+				"command": "editor-watermark-customizer.changewatermark",
+				"title": "Change Editor Watermark"
 			},
 			{
 				"command": "editor-watermark-customizer.addwatermark",
-				"title": "Add new editor watermark"
+				"title": "Add New Editor Watermark"
+			},
+			{
+				"command": "editor-watermark-customizer.delwatermark",
+				"title": "Delete Editor Watermark"
 			}
 		],
 		"configuration": {
@@ -58,7 +63,7 @@
 	},
 	"__metadata": {
 		"isApplicationScoped": false,
-		"installedTimestamp": 1730706668951,
+		"installedTimestamp": 1730716912215,
 		"pinned": true,
 		"source": "vsix"
 	},
