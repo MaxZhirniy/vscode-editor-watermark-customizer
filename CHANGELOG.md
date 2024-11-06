@@ -4,6 +4,7 @@
 ### 1.0.1
 * Add support to add any watermark extensions! Use svg, png, ico, jpg, jpeg, gif and mp4 watermarks!
 * Add support to safely mode: without overwritting installation resources(images)
+* Add support to delete watermark
 
 ### 1.0.0
 * Add support check and optimize new svg watermark
